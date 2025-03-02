@@ -2,17 +2,29 @@
 'use client'
 
 import React, { useEffect, useState } from 'react';
+import Loader from '@/components/Loader';
 
 export default function Players() {
   const [players, setPlayers] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // Fetch players from the API route
     fetch('/api/players')
       .then((response) => response.json())
-      .then((data) => setPlayers(data))
-      .catch((error) => console.error('Error fetching players:', error));
+      .then((data) => {
+        setPlayers(data);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error('Error fetching players:', error);
+        setLoading(false);
+      });
   }, []);
+
+  if (loading) {
+    return <Loader />;
+  }
 
   return (
     <div>
@@ -20,7 +32,7 @@ export default function Players() {
       <ul>
         {players.map((player) => (
           <li key={player.id}>
-            {player.name} - {player.position} ({player.team})
+            {player.name} - {player.position}
           </li>
         ))}
       </ul>
