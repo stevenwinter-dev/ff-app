@@ -1,8 +1,8 @@
-// pages/index.js
-'use client'
+'use client';
 
+import { useState, useEffect } from 'react';
 import Loader from '@/components/Loader';
-import React, { useEffect, useState } from 'react';
+import PollDisplay from '@/components/PollDisplay'; // Import the PollDisplay component
 
 export default function Polls() {
   const [polls, setPolls] = useState([]);
@@ -13,7 +13,7 @@ export default function Polls() {
     fetch('/api/polls')
       .then((response) => response.json())
       .then((data) => {
-        console.log('Fetched polls:', data);
+        console.log('Fetched polls:', data); // Check the full response in the console
         setPolls(data);
         setLoading(false);
       })
@@ -28,20 +28,15 @@ export default function Polls() {
   }
 
   return (
-    <div>
-      <h1>Polls</h1>
-      <ul>
-        {polls.map((poll) => (
-          <li key={poll.id}>
-            <br />
-            Creator ID: {poll.creatorId}
-            <br />
-            Player 1 ID: {poll.player1Id}
-            <br />
-            Player 2 ID: {poll.player2Id}
-          </li>
-        ))}
-      </ul>
+    <div className="min-h-screen py-8">
+      <h1 className="text-3xl font-bold text-center text-white mb-8">Polls</h1>
+      <div className="max-w-4xl mx-auto px-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {polls.map((poll) => (
+            <PollDisplay key={poll.id} poll={poll} /> // Render each poll using PollDisplay
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

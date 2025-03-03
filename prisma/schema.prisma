@@ -14,7 +14,6 @@ datasource db {
 }
 
 // prisma/schema.prisma
-
 model User {
   // Authentication fields
   id            String    @id @default(cuid())
@@ -72,16 +71,21 @@ model Player {
   id      Int    @id @default(autoincrement())
   name    String
   position String
-  polls   Poll[] // Many-to-many relationship with Poll
-  votes   Vote[] // Reverse relation to Vote
+  team    String
+  votes   Vote[] // Relation to Vote
+  pollsAsPlayer1 Poll[] @relation("Player1") // Reverse relation to Poll (player1)
+  pollsAsPlayer2 Poll[] @relation("Player2") // Reverse relation to Poll (player2)
 }
 
 model Poll {
   id        Int      @id @default(autoincrement())
+  player1Id Int
+  player2Id Int
   creatorId String
   createdAt DateTime @default(now())
-  players   Player[] // Many-to-many relationship with Player
-  creator   User     @relation(fields: [creatorId], references: [id])
+  player1   Player   @relation("Player1", fields: [player1Id], references: [id]) // Relation to Player (player1)
+  player2   Player   @relation("Player2", fields: [player2Id], references: [id]) // Relation to Player (player2)
+  creator   User     @relation(fields: [creatorId], references: [id]) // Relation to User
   votes     Vote[]
 }
 

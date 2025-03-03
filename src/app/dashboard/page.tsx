@@ -1,15 +1,22 @@
 'use client'; // Mark as a Client Component
 
 import Loader from '@/components/Loader';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSession, signIn, signOut } from 'next-auth/react';
+import CreatePoll from '@/components/CreatePoll'; // Import the CreatePoll component
 
 export default function Dashboard() {
   const { data: session, status } = useSession();
+  const [creatorId, setCreatorId] = useState(null); // State to store the creatorId
 
   useEffect(() => {
     if (status === 'loading') return; // Do nothing while loading
     if (!session) signIn(); // Redirect to sign-in if not authenticated
+
+    // Set the creatorId once the session is available
+    if (session?.user?.id) {
+      setCreatorId(session.user.id);
+    }
   }, [session, status]);
 
   if (status === 'loading') {
@@ -24,7 +31,11 @@ export default function Dashboard() {
     <div className="p-4">
       <h1 className="text-2xl font-bold">Hello, {session.user.name}</h1>
       <h2 className="text-xl mt-2">Dashboard</h2>
-      {/* Render polls or other content here */}
+
+      {/* Render the CreatePoll component */}
+      <div className="mt-4">
+        <CreatePoll creatorId={creatorId} />
+      </div>
 
       {/* Sign Out Button */}
       <button

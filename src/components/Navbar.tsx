@@ -1,22 +1,37 @@
+'use client';
+
 import Link from 'next/link';
+import { useSession, signIn } from 'next-auth/react';
+import SignInButton from './SignIn';
 
 export default function Navbar() {
-    return (
-        <nav>
-            <ul className="flex space-x-4 p-4">
-                <li>
-                    <Link href="/">Home</Link>
-                </li>
-                <li>
-                    <Link href="/about">About</Link>
-                </li>
-                <li>
-                    <Link href="/polls">Polls</Link>
-                </li>
-                <li>
-                    <Link href="/players">Players</Link>
-                </li>
-            </ul>
-        </nav>
-    );
-};
+  const { data: session, status } = useSession();
+
+  return (
+    <nav>
+      <ul className="flex space-x-4 p-4">
+        <li>
+          <Link href="/">Home</Link>
+        </li>
+        <li>
+          <Link href="/about">About</Link>
+        </li>
+        <li>
+          <Link href="/polls">Polls</Link>
+        </li>
+        <li>
+          <Link href="/players">Players</Link>
+        </li>
+        {status === 'authenticated' ? (
+          <li>
+            <Link href="/dashboard">Dashboard</Link>
+          </li>
+        ) : (
+          <li>
+            <SignInButton />
+          </li>
+        )}
+      </ul>
+    </nav>
+  );
+}

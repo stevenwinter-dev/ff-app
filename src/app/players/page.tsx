@@ -32,7 +32,7 @@ export default function Players() {
       <ul>
         {players.map((player) => (
           <li key={player.id}>
-            {player.name} - {player.position}
+            {player.name} - {player.position} - {player.team}
           </li>
         ))}
       </ul>

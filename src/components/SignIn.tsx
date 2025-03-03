@@ -13,8 +13,8 @@ export default function SignInButton() {
   };
 
   return (
-    <button onClick={handleSignIn} className="bg-blue-500 text-white px-4 py-2 rounded">
-      Sign in with Google
+    <button onClick={() => signIn()} className="bg-black text-white border border-emerald-400 px-4 py-2 rounded hover:bg-gray-800">
+      Sign in
     </button>
   );
 }
