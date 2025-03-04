@@ -18,6 +18,7 @@ model User {
   // Authentication fields
   id            String    @id @default(cuid())
   name          String?
+  username      String?   @unique // Add this line
   email         String?   @unique
   emailVerified DateTime?
   image         String?

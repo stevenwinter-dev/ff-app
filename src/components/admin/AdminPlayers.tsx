@@ -1,13 +1,17 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Loader from '@/components/Loader';
 
 export default function AdminPlayers() {
   const [players, setPlayers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [newPlayer, setNewPlayer] = useState({ name: '', position: '', team: '' }); // State for creating a single player
-  const [bulkPlayers, setBulkPlayers] = useState(''); // State for bulk player upload (JSON string)
+  const [newPlayer, setNewPlayer] = useState({ name: '', position: '', team: '' });
+  const [bulkPlayers, setBulkPlayers] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
+  const [deletingPlayerId, setDeletingPlayerId] = useState(null); // Track which player is being deleted
+  const [isCreating, setIsCreating] = useState(false); // Track if a player is being created
 
   // Fetch players from the API
   useEffect(() => {
@@ -26,6 +30,9 @@ export default function AdminPlayers() {
 
   // Handle create single player
   const handleCreatePlayer = async () => {
+    setIsCreating(true); // Set creating state to true
+    setError(''); // Clear any previous errors
+
     try {
       const response = await fetch('/api/players', {
         method: 'POST',
@@ -40,18 +47,23 @@ export default function AdminPlayers() {
       }
 
       const createdPlayer = await response.json();
-      setPlayers([...players, createdPlayer]); // Add the new player to the list
+      setPlayers([...players, createdPlayer]);
       setNewPlayer({ name: '', position: '', team: '' }); // Reset the form
     } catch (error) {
       console.error('Error creating player:', error);
       setError('Failed to create player');
+    } finally {
+      setIsCreating(false); // Reset creating state
     }
   };
 
   // Handle bulk player upload
   const handleBulkUpload = async () => {
+    setIsUploading(true);
+    setError('');
+
     try {
-      const playersArray = JSON.parse(bulkPlayers); // Parse the JSON string into an array
+      const playersArray = JSON.parse(bulkPlayers);
       if (!Array.isArray(playersArray)) {
         throw new Error('Invalid JSON format. Expected an array of players.');
       }
@@ -69,16 +81,23 @@ export default function AdminPlayers() {
       }
 
       const createdPlayers = await response.json();
-      setPlayers([...players, ...createdPlayers]); // Add the new players to the list
-      setBulkPlayers(''); // Reset the bulk upload field
+      if (Array.isArray(createdPlayers)) {
+        setPlayers([...players, ...createdPlayers]);
+        setBulkPlayers('');
+      } else {
+        throw new Error('Unexpected response format. Expected an array of players.');
+      }
     } catch (error) {
       console.error('Error uploading players:', error);
       setError('Failed to upload players: ' + error.message);
+    } finally {
+      setIsUploading(false);
     }
   };
 
   // Handle delete player
   const handleDeletePlayer = async (playerId) => {
+    setDeletingPlayerId(playerId); // Set the player being deleted
     try {
       const response = await fetch(`/api/players/${playerId}`, {
         method: 'DELETE',
@@ -88,16 +107,17 @@ export default function AdminPlayers() {
         throw new Error('Failed to delete player');
       }
 
-      // Remove the deleted player from the state
       setPlayers(players.filter((player) => player.id !== playerId));
     } catch (error) {
       console.error('Error deleting player:', error);
       setError('Failed to delete player');
+    } finally {
+      setDeletingPlayerId(null); // Clear the deleting state
     }
   };
 
   if (loading) {
-    return <div>Loading players...</div>;
+    return <Loader />;
   }
 
   if (error) {
@@ -135,9 +155,10 @@ export default function AdminPlayers() {
           />
           <button
             onClick={handleCreatePlayer}
-            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
+            disabled={isCreating} // Disable the button while creating
+            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded disabled:opacity-50"
           >
-            Create Player
+            {isCreating ? 'Creating...' : 'Create Player'}
           </button>
         </div>
       </div>
@@ -154,9 +175,10 @@ export default function AdminPlayers() {
         />
         <button
           onClick={handleBulkUpload}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+          disabled={isUploading}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded disabled:opacity-50"
         >
-          Upload Players
+          {isUploading ? 'Uploading...' : 'Upload Players'}
         </button>
       </div>
 
@@ -169,9 +191,10 @@ export default function AdminPlayers() {
             <p>Team: {player.team}</p>
             <button
               onClick={() => handleDeletePlayer(player.id)}
-              className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded mt-2"
+              disabled={deletingPlayerId === player.id} // Disable the button while deleting
+              className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded mt-2 disabled:opacity-50"
             >
-              Delete Player
+              {deletingPlayerId === player.id ? 'Deleting...' : 'Delete Player'}
             </button>
           </li>
         ))}

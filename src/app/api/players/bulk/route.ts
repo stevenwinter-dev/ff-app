@@ -13,8 +13,17 @@ export async function POST(request) {
     }
 
     // Create players in bulk
-    const createdPlayers = await prisma.player.createMany({
+    await prisma.player.createMany({
       data: players,
+    });
+
+    // Fetch the newly created players
+    const createdPlayers = await prisma.player.findMany({
+      where: {
+        name: {
+          in: players.map((player) => player.name),
+        },
+      },
     });
 
     return NextResponse.json(createdPlayers, { status: 201 });

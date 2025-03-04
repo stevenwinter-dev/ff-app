@@ -1,7 +1,7 @@
 import NextAuth from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
-import prisma from '../../../../../prisma'; // Import the Prisma Client instance
+import prisma from '../../../../../prisma';
 
 export const authOptions = {
   adapter: PrismaAdapter(prisma),
@@ -13,9 +13,13 @@ export const authOptions = {
   ],
   callbacks: {
     async session({ session, user }) {
-      // Add user ID to the session object
       session.user.id = user.id;
+      session.user.username = user.username; // Add username to the session
       return session;
+    },
+    async redirect({ url, baseUrl }) {
+      // Redirect to the home page by default
+      return url.startsWith(baseUrl) ? url : baseUrl;
     },
   },
 };

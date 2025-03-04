@@ -19,13 +19,29 @@ export async function GET() {
         },
       },
     });
-    return NextResponse.json(polls);
+
+    // Calculate vote percentages for each poll
+    const pollsWithPercentages = polls.map((poll) => {
+      const totalVotes = poll.votes.length;
+      const player1Votes = poll.votes.filter((vote) => vote.playerId === poll.player1Id).length;
+      const player2Votes = totalVotes - player1Votes;
+
+      const player1Percentage = totalVotes > 0 ? (player1Votes / totalVotes) * 100 : 50;
+      const player2Percentage = totalVotes > 0 ? (player2Votes / totalVotes) * 100 : 50;
+
+      return {
+        ...poll,
+        player1Percentage,
+        player2Percentage,
+      };
+    });
+
+    return NextResponse.json(pollsWithPercentages);
   } catch (error) {
     console.error('Error fetching polls:', error);
     return NextResponse.json({ error: 'Failed to fetch polls' }, { status: 500 });
   }
 }
-
 // POST: Create a new poll
 export async function POST(request) {
   try {

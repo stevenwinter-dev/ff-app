@@ -2,29 +2,39 @@
 
 import { useState, useEffect } from 'react';
 import Loader from '@/components/Loader';
-import PollDisplay from '@/components/PollDisplay'; // Import the PollDisplay component
+import PollDisplay from '@/components/PollDisplay';
 
 export default function Polls() {
   const [polls, setPolls] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  const fetchPolls = async () => {
+    try {
+      const response = await fetch('/api/polls');
+      if (!response.ok) {
+        throw new Error('Failed to fetch polls');
+      }
+      const data = await response.json();
+      setPolls(data);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching polls:', error);
+      setError('Failed to fetch polls. Please try again later.');
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    // Fetch polls from the API route
-    fetch('/api/polls')
-      .then((response) => response.json())
-      .then((data) => {
-        console.log('Fetched polls:', data); // Check the full response in the console
-        setPolls(data);
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error('Error fetching polls:', error);
-        setLoading(false);
-      });
+    fetchPolls();
   }, []);
 
   if (loading) {
     return <Loader />;
+  }
+
+  if (error) {
+    return <div className="text-red-500 text-center mt-8">{error}</div>;
   }
 
   return (
@@ -33,7 +43,11 @@ export default function Polls() {
       <div className="max-w-4xl mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {polls.map((poll) => (
-            <PollDisplay key={poll.id} poll={poll} /> // Render each poll using PollDisplay
+            <PollDisplay
+              key={poll.id}
+              poll={poll}
+              onVote={fetchPolls} // Pass the refetch function
+            />
           ))}
         </div>
       </div>
