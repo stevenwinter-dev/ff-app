@@ -11,6 +11,7 @@ export default function AdminPolls() {
   const [updatingPollId, setUpdatingPollId] = useState(null); // Track which poll is being updated
   const [player1Points, setPlayer1Points] = useState(0); // Points for Player 1
   const [player2Points, setPlayer2Points] = useState(0); // Points for Player 2
+  const [changingStatusPollId, setChangingStatusPollId] = useState(null); // Track which poll's status is being changed
 
   // Fetch polls from the API
   useEffect(() => {
@@ -19,7 +20,6 @@ export default function AdminPolls() {
       .then((data) => {
         setPolls(data);
         setLoading(false);
-        console.log('Polls:', data);
       })
       .catch((error) => {
         console.error('Error fetching polls:', error);
@@ -102,6 +102,31 @@ export default function AdminPolls() {
     }
   };
 
+  // Handle open/close poll
+  const handleChangePollStatus = async (pollId, status) => {
+    setChangingStatusPollId(pollId); // Set the poll being updated
+    try {
+      const response = await fetch(`/api/polls/${pollId}/status`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update poll status');
+      }
+
+      // Refetch the polls to update the status
+      const updatedPolls = await fetch('/api/polls').then((res) => res.json());
+      setPolls(updatedPolls);
+    } catch (error) {
+      console.error('Error updating poll status:', error);
+      setError('Failed to update poll status');
+    } finally {
+      setChangingStatusPollId(null); // Clear the updating state
+    }
+  };
+
   if (loading) {
     return <div>Loading polls...</div>;
   }
@@ -109,18 +134,19 @@ export default function AdminPolls() {
   if (error) {
     return <div>Error: {error}</div>;
   }
-  console.log(polls)
+
   return (
     <div>
       <h2 className="text-2xl font-bold mb-4">Manage Polls</h2>
       <ul>
         {polls.map((poll) => (
           <li key={poll.id} className="border border-gray-700 p-4 mb-4 rounded-lg">
-            <h3 className="text-xl font-bold">{poll.player1.name} {poll.player1.position} vs {poll.player2.name }{poll.player2.position}</h3>
+            <h3 className="text-xl font-bold">{poll.player1.name} {poll.player1.position} vs {poll.player2.name} {poll.player2.position}</h3>
             <p className="text-xl font-bold">Poll ID: {poll.id}</p>
             <p>Created by: {poll.creator.name}</p>
             <p>Created at: {new Date(poll.createdAt).toLocaleString()}</p>
             <p>Votes: {poll.votes.length}</p>
+            <p>Status: {poll.status}</p>
             <div className="flex space-x-2 mt-2">
               <button
                 onClick={() => handleDeletePoll(poll.id)}
@@ -135,6 +161,13 @@ export default function AdminPolls() {
                 className="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded disabled:opacity-50"
               >
                 {resettingPollId === poll.id ? 'Resetting...' : 'Reset Poll'}
+              </button>
+              <button
+                onClick={() => handleChangePollStatus(poll.id, poll.status === 'open' ? 'closed' : 'open')}
+                disabled={changingStatusPollId === poll.id} // Disable the button while updating
+                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded disabled:opacity-50"
+              >
+                {changingStatusPollId === poll.id ? 'Updating...' : poll.status === 'open' ? 'Close Poll' : 'Open Poll'}
               </button>
             </div>
             {/* Manual Update Section */}

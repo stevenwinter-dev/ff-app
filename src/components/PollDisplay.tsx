@@ -29,6 +29,11 @@ export default function PollDisplay({ poll, onVote }) {
   }, [poll.votes, session]);
 
   const handleVote = async (playerId) => {
+    if (poll.status === 'closed') {
+      setError('This poll is closed and no longer accepting votes.');
+      return;
+    }
+
     try {
       const response = await fetch('/api/votes', {
         method: 'POST',
@@ -64,6 +69,11 @@ export default function PollDisplay({ poll, onVote }) {
         {poll.player1.name} vs {poll.player2.name}
       </h3>
 
+      {/* Poll status */}
+      {poll.status === 'closed' && (
+        <p className="text-red-500 mb-4">This poll is closed and no longer accepting votes.</p>
+      )}
+
       <div className="mb-4">
         <p className="text-gray-300 mb-2">
           {poll.player1.name} (Position: {poll.player1.position}, Team: {poll.player1.team})
@@ -79,7 +89,7 @@ export default function PollDisplay({ poll, onVote }) {
         </p>
         <button
           onClick={() => handleVote(poll.player1.id)}
-          disabled={hasVoted || selectedPlayerId === poll.player1.id} // Disable if the user has already voted
+          disabled={hasVoted || selectedPlayerId === poll.player1.id || poll.status === 'closed'} // Disable if the user has already voted or the poll is closed
           className="mt-2 bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded disabled:opacity-50"
         >
           {hasVoted && selectedPlayerId === poll.player1.id ? 'Voted' : 'Vote for ' + poll.player1.name}
@@ -101,7 +111,7 @@ export default function PollDisplay({ poll, onVote }) {
         </p>
         <button
           onClick={() => handleVote(poll.player2.id)}
-          disabled={hasVoted || selectedPlayerId === poll.player2.id} // Disable if the user has already voted
+          disabled={hasVoted || selectedPlayerId === poll.player2.id || poll.status === 'closed'} // Disable if the user has already voted or the poll is closed
           className="mt-2 bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded disabled:opacity-50"
         >
           {hasVoted && selectedPlayerId === poll.player2.id ? 'Voted' : 'Vote for ' + poll.player2.name}
