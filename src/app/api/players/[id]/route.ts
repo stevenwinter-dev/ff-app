@@ -3,18 +3,10 @@ import { NextResponse } from 'next/server';
 
 const prisma = new PrismaClient();
 
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request, { params }) {
+  const { id } = params;
+
   try {
-    // Destructure the `id` directly from `params`
-    const { id } = await params;
-
-    // Validate the ID
-    if (isNaN(parseInt(id))) {
-      return NextResponse.json({ error: 'Invalid player ID' }, { status: 400 });
-    }
-
-    console.log(`Deleting player with ID: ${id}`);
-
     // Delete related votes where the player is involved
     await prisma.vote.deleteMany({
       where: {

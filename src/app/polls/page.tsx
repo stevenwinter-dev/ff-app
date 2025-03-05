@@ -16,7 +16,9 @@ export default function Polls() {
         throw new Error('Failed to fetch polls');
       }
       const data = await response.json();
-      setPolls(data);
+      const openPolls = data.filter((poll) => poll.status === 'open');
+      setPolls(openPolls);
+      console.log(openPolls)
       setLoading(false);
     } catch (error) {
       console.error('Error fetching polls:', error);

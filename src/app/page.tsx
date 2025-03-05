@@ -14,7 +14,8 @@ export default function Home() {
     fetch('/api/polls')
       .then((response) => response.json())
       .then((data) => {
-        setPolls(data);
+        const openPolls = data.filter((poll) => poll.status === 'open');
+        setPolls(openPolls);
         setLoading(false);
       })
       .catch((error) => {

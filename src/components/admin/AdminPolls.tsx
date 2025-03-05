@@ -9,8 +9,7 @@ export default function AdminPolls() {
   const [deletingPollId, setDeletingPollId] = useState(null); // Track which poll is being deleted
   const [resettingPollId, setResettingPollId] = useState(null); // Track which poll's votes are being reset
   const [updatingPollId, setUpdatingPollId] = useState(null); // Track which poll is being updated
-  const [player1Points, setPlayer1Points] = useState(0); // Points for Player 1
-  const [player2Points, setPlayer2Points] = useState(0); // Points for Player 2
+  const [winningPlayerIds, setWinningPlayerIds] = useState({}); // Track the selected winner for each poll
   const [changingStatusPollId, setChangingStatusPollId] = useState(null); // Track which poll's status is being changed
 
   // Fetch polls from the API
@@ -75,12 +74,18 @@ export default function AdminPolls() {
 
   // Handle manual update of poll results
   const handleManualUpdate = async (pollId) => {
+    const winningPlayerId = winningPlayerIds[pollId];
+    if (!winningPlayerId) {
+      setError('Please select a winner before updating.');
+      return;
+    }
+
     setUpdatingPollId(pollId); // Set the poll being updated
     try {
       const response = await fetch(`/api/polls/${pollId}/manualUpdate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ player1Points, player2Points }),
+        body: JSON.stringify({ winningPlayerId }),
       });
 
       if (!response.ok) {
@@ -91,9 +96,8 @@ export default function AdminPolls() {
       const updatedPolls = await fetch('/api/polls').then((res) => res.json());
       setPolls(updatedPolls);
 
-      // Reset the points input fields
-      setPlayer1Points(0);
-      setPlayer2Points(0);
+      // Reset the selected winner for this poll
+      setWinningPlayerIds((prev) => ({ ...prev, [pollId]: null }));
     } catch (error) {
       console.error('Error updating poll:', error);
       setError('Failed to update poll');
@@ -125,6 +129,11 @@ export default function AdminPolls() {
     } finally {
       setChangingStatusPollId(null); // Clear the updating state
     }
+  };
+
+  // Handle selecting a winner for a specific poll
+  const handleSelectWinner = (pollId, playerId) => {
+    setWinningPlayerIds((prev) => ({ ...prev, [pollId]: playerId }));
   };
 
   if (loading) {
@@ -173,25 +182,29 @@ export default function AdminPolls() {
             {/* Manual Update Section */}
             <div className="mt-4">
               <h4 className="text-lg font-bold mb-2">Update Poll Results</h4>
-              <div className="flex space-x-2">
-                <input
-                  type="number"
-                  placeholder="Player 1 Points"
-                  value={player1Points}
-                  onChange={(e) => setPlayer1Points(parseFloat(e.target.value))}
-                  className="bg-gray-700 text-white px-2 py-1 rounded"
-                />
-                <input
-                  type="number"
-                  placeholder="Player 2 Points"
-                  value={player2Points}
-                  onChange={(e) => setPlayer2Points(parseFloat(e.target.value))}
-                  className="bg-gray-700 text-white px-2 py-1 rounded"
-                />
+              <div className="flex flex-col space-y-2">
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    checked={winningPlayerIds[poll.id] === poll.player1.id}
+                    onChange={() => handleSelectWinner(poll.id, poll.player1.id)}
+                    className="form-checkbox h-5 w-5 text-blue-600"
+                  />
+                  <span>{poll.player1.name}</span>
+                </label>
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    checked={winningPlayerIds[poll.id] === poll.player2.id}
+                    onChange={() => handleSelectWinner(poll.id, poll.player2.id)}
+                    className="form-checkbox h-5 w-5 text-blue-600"
+                  />
+                  <span>{poll.player2.name}</span>
+                </label>
                 <button
                   onClick={() => handleManualUpdate(poll.id)}
-                  disabled={updatingPollId === poll.id} // Disable the button while updating
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded disabled:opacity-50"
+                  disabled={updatingPollId === poll.id || !winningPlayerIds[poll.id]} // Disable the button while updating or if no winner is selected
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded disabled:opacity-50 w-40"
                 >
                   {updatingPollId === poll.id ? 'Updating...' : 'Update Results'}
                 </button>

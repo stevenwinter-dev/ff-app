@@ -78,6 +78,7 @@ model Player {
   pollsAsPlayer2 Poll[] @relation("Player2") // Reverse relation to Poll (player2)
 }
 
+
 model Poll {
   id              Int      @id @default(autoincrement())
   player1Id       Int
