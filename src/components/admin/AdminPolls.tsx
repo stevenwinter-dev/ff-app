@@ -8,6 +8,9 @@ export default function AdminPolls() {
   const [error, setError] = useState('');
   const [deletingPollId, setDeletingPollId] = useState(null); // Track which poll is being deleted
   const [resettingPollId, setResettingPollId] = useState(null); // Track which poll's votes are being reset
+  const [updatingPollId, setUpdatingPollId] = useState(null); // Track which poll is being updated
+  const [player1Points, setPlayer1Points] = useState(0); // Points for Player 1
+  const [player2Points, setPlayer2Points] = useState(0); // Points for Player 2
 
   // Fetch polls from the API
   useEffect(() => {
@@ -16,6 +19,7 @@ export default function AdminPolls() {
       .then((data) => {
         setPolls(data);
         setLoading(false);
+        console.log('Polls:', data);
       })
       .catch((error) => {
         console.error('Error fetching polls:', error);
@@ -69,6 +73,35 @@ export default function AdminPolls() {
     }
   };
 
+  // Handle manual update of poll results
+  const handleManualUpdate = async (pollId) => {
+    setUpdatingPollId(pollId); // Set the poll being updated
+    try {
+      const response = await fetch(`/api/polls/${pollId}/manualUpdate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ player1Points, player2Points }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update poll');
+      }
+
+      // Refetch the polls to update the results
+      const updatedPolls = await fetch('/api/polls').then((res) => res.json());
+      setPolls(updatedPolls);
+
+      // Reset the points input fields
+      setPlayer1Points(0);
+      setPlayer2Points(0);
+    } catch (error) {
+      console.error('Error updating poll:', error);
+      setError('Failed to update poll');
+    } finally {
+      setUpdatingPollId(null); // Clear the updating state
+    }
+  };
+
   if (loading) {
     return <div>Loading polls...</div>;
   }
@@ -76,14 +109,15 @@ export default function AdminPolls() {
   if (error) {
     return <div>Error: {error}</div>;
   }
-
+  console.log(polls)
   return (
     <div>
       <h2 className="text-2xl font-bold mb-4">Manage Polls</h2>
       <ul>
         {polls.map((poll) => (
           <li key={poll.id} className="border border-gray-700 p-4 mb-4 rounded-lg">
-            <h3 className="text-xl font-bold">Poll ID: {poll.id}</h3>
+            <h3 className="text-xl font-bold">{poll.player1.name} {poll.player1.position} vs {poll.player2.name }{poll.player2.position}</h3>
+            <p className="text-xl font-bold">Poll ID: {poll.id}</p>
             <p>Created by: {poll.creator.name}</p>
             <p>Created at: {new Date(poll.createdAt).toLocaleString()}</p>
             <p>Votes: {poll.votes.length}</p>
@@ -102,6 +136,33 @@ export default function AdminPolls() {
               >
                 {resettingPollId === poll.id ? 'Resetting...' : 'Reset Poll'}
               </button>
+            </div>
+            {/* Manual Update Section */}
+            <div className="mt-4">
+              <h4 className="text-lg font-bold mb-2">Update Poll Results</h4>
+              <div className="flex space-x-2">
+                <input
+                  type="number"
+                  placeholder="Player 1 Points"
+                  value={player1Points}
+                  onChange={(e) => setPlayer1Points(parseFloat(e.target.value))}
+                  className="bg-gray-700 text-white px-2 py-1 rounded"
+                />
+                <input
+                  type="number"
+                  placeholder="Player 2 Points"
+                  value={player2Points}
+                  onChange={(e) => setPlayer2Points(parseFloat(e.target.value))}
+                  className="bg-gray-700 text-white px-2 py-1 rounded"
+                />
+                <button
+                  onClick={() => handleManualUpdate(poll.id)}
+                  disabled={updatingPollId === poll.id} // Disable the button while updating
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded disabled:opacity-50"
+                >
+                  {updatingPollId === poll.id ? 'Updating...' : 'Update Results'}
+                </button>
+              </div>
             </div>
           </li>
         ))}

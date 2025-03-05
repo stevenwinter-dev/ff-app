@@ -60,18 +60,17 @@ export default function PollDisplay({ poll, onVote }) {
 
   return (
     <div className="border border-gray-700 p-6 mb-6 rounded-lg shadow-lg bg-slate-950 text-white flex flex-col">
-      <h2 className="text-xl font-bold mb-2">Poll ID: {poll.id}</h2>
-      <p className="text-gray-400 mb-2">Created by: {poll.creator.name}</p>
-      <p className="text-gray-400 mb-4">Created at: {new Date(poll.createdAt).toLocaleString()}</p>
+      <h3 className="text-xl font-bold mb-2">
+        {poll.player1.name} vs {poll.player2.name}
+      </h3>
 
-      <h3 className="text-lg font-semibold mb-2">Players:</h3>
       <div className="mb-4">
         <p className="text-gray-300 mb-2">
           {poll.player1.name} (Position: {poll.player1.position}, Team: {poll.player1.team})
         </p>
         <div className="w-full bg-gray-700 rounded-full h-2.5">
           <div
-            className="bg-blue-600 h-2.5 rounded-full"
+            className="bg-blue-400 h-2.5 rounded-full"
             style={{ width: `${player1Percentage}%` }}
           ></div>
         </div>
@@ -93,7 +92,7 @@ export default function PollDisplay({ poll, onVote }) {
         </p>
         <div className="w-full bg-gray-700 rounded-full h-2.5">
           <div
-            className="bg-green-600 h-2.5 rounded-full"
+            className="bg-fuchsia-500 h-2.5 rounded-full"
             style={{ width: `${player2Percentage}%` }}
           ></div>
         </div>

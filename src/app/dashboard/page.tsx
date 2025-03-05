@@ -4,6 +4,7 @@ import Loader from '@/components/Loader';
 import React, { useEffect, useState } from 'react';
 import { useSession, signIn, signOut } from 'next-auth/react';
 import CreatePoll from '@/components/CreatePoll'; // Import the CreatePoll component
+import Accuracy from '@/components/Accuracy';
 
 export default function Dashboard() {
   const { data: session, status } = useSession();
@@ -31,6 +32,8 @@ export default function Dashboard() {
     <div className="p-4">
       <h1 className="text-2xl font-bold">Hello, {session.user.name}</h1>
       <h2 className="text-xl mt-2">Dashboard</h2>
+
+      <Accuracy /> {/* Render the Accuracy component */}
 
       {/* Render the CreatePoll component */}
       <div className="mt-4">
