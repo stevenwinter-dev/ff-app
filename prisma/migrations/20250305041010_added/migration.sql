@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "User" ADD COLUMN     "weightedScore" DOUBLE PRECISION NOT NULL DEFAULT 0;

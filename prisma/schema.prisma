@@ -26,9 +26,9 @@ model User {
   sessions      Session[]
 
   // Custom fields
-  participationPoints Int      @default(0)
   accuracyPoints      Int      @default(0)
   accuracyScore       Float    @default(0)
+  weightedScore       Float    @default(0)
   polls               Poll[]   // Polls created by the user
   votes               Vote[]   // Votes cast by the user
 }
