@@ -1,0 +1,8 @@
+@keyframes fillAccuracy {
+    from {
+      background: conic-gradient(#00BCFF 0%, #FF1F57 0% 100%);
+    }
+    to {
+      background: conic-gradient(#00BCFF var(--accuracy-percentage), #FF1F57 var(--accuracy-percentage) 100%);
+    }
+  }

@@ -71,45 +71,70 @@ export default function CreatePoll({ creatorId }) {
   };
 
   if (loading) {
-    return <div>Loading players...</div>;
+    return <div className="text-white">Loading players...</div>;
   }
 
   if (error) {
-    return <div>Error: {error}</div>;
+    return <div className="text-red-500">{error}</div>;
   }
 
   return (
-    <div>
-      <h2>Create a Poll</h2>
-      <div>
-        <label>Player 1:</label>
-        <select value={selectedPlayer1 || ''} onChange={handlePlayer1Change}>
-          <option value="">Select a player</option>
+    <div className="bg-gray-900 p-6 rounded-lg shadow-lg text-white">
+      <h2 className="text-2xl font-bold mb-6">Create a Poll</h2>
+
+      {/* Player 1 Selection */}
+      <div className="mb-4">
+        <label className="block text-sm font-medium mb-2">Player 1:</label>
+        <select
+          value={selectedPlayer1 || ''}
+          onChange={handlePlayer1Change}
+          className="w-full p-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-blue-500"
+        >
+          <option value="" disabled>
+            Select a player
+          </option>
           {players.map((player) => (
-            <option key={player.id} value={player.id}>
+            <option key={player.id} value={player.id} className="bg-gray-800">
               {player.name} ({player.position})
             </option>
           ))}
         </select>
       </div>
-      <div>
-        <label>Player 2:</label>
-        <select value={selectedPlayer2 || ''} onChange={handlePlayer2Change}>
-          <option value="">Select a player</option>
+
+      {/* Player 2 Selection */}
+      <div className="mb-6">
+        <label className="block text-sm font-medium mb-2">Player 2:</label>
+        <select
+          value={selectedPlayer2 || ''}
+          onChange={handlePlayer2Change}
+          className="w-full p-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-blue-500"
+        >
+          <option value="" disabled>
+            Select a player
+          </option>
           {players.map((player) => (
-            <option key={player.id} value={player.id}>
+            <option key={player.id} value={player.id} className="bg-gray-800">
               {player.name} ({player.position})
             </option>
           ))}
         </select>
       </div>
+
+      {/* Create Poll Button */}
       <button
         onClick={handleCreatePoll}
         disabled={!selectedPlayer1 || !selectedPlayer2 || selectedPlayer1 === selectedPlayer2}
+        className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2 px-4 rounded-lg hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
       >
         Create Poll
       </button>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+
+      {/* Error Message */}
+      {error && (
+        <div className="mt-4 p-2 bg-red-500 text-white text-sm rounded-lg">
+          {error}
+        </div>
+      )}
     </div>
   );
 }
