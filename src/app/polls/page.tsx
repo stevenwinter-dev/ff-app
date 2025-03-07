@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Loader from '@/components/Loader';
-import PollDisplay from '@/components/PollDisplay';
+import PollDisplay from '@/components/PollDisplay2';
 
 export default function Polls() {
   const [polls, setPolls] = useState([]);
