@@ -1,7 +1,7 @@
 'use client';
 
-import AdminPlayers from '@/components/admin/AdminPlayers';
-import AdminPolls from '@/components/admin/AdminPolls';
+import AdminPlayers from '../../components/admin/AdminPlayers';
+import AdminPolls from '../../components/admin/AdminPolls';
 import { useState } from 'react';
 
 export default function AdminPanel() {

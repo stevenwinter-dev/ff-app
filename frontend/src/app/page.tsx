@@ -1,9 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import PollDisplay from '@/components/PollDisplay';
+import PollDisplay from '../components/PollDisplay';
 import Link from 'next/link';
-import Loader from '@/components/Loader';
+import Loader from '../components/Loader';
 
 export default function Home() {
   const [polls, setPolls] = useState([]);

@@ -1,10 +1,10 @@
 'use client'; // Mark as a Client Component
 
-import Loader from '@/components/Loader';
+import Loader from '../../components/Loader';
 import React, { useEffect, useState } from 'react';
 import { useSession, signIn, signOut } from 'next-auth/react';
-import CreatePoll from '@/components/CreatePoll'; // Import the CreatePoll component
-import Accuracy from '@/components/Accuracy';
+import CreatePoll from '../../components/CreatePoll'; // Import the CreatePoll component
+import Accuracy from '../../components/Accuracy';
 
 export default function Dashboard() {
   const { data: session, status } = useSession();
