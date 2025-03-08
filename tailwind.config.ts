@@ -4,7 +4,11 @@ module.exports = {
       './components/**/*.{js,ts,jsx,tsx}',
     ],
     theme: {
-      extend: {},
+      extend: {
+        backgroundImage: {
+          'gradient-slate-indigo': 'linear-gradient(to right, #0f172a, #312e81, #0f172a)',
+        },
+      },
     },
     plugins: [],
   };

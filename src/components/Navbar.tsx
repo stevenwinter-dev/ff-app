@@ -8,8 +8,8 @@ export default function Navbar() {
   const { data: session, status } = useSession();
 
   return (
-    <nav>
-      <ul className="flex space-x-4 p-4">
+    <nav className='bg-gradient-to-r from-slate-950 via-indigo-950 to-slate-950'>
+      <ul className="flex space-x-4 p-8">
         <li>
           <Link href="/">Home</Link>
         </li>
