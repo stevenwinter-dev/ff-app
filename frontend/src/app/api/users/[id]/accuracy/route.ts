@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import prisma from '../../../../../lib/prisma';
 
 export async function GET(request: Request, { params }: { params: { id: string } }) {
-  const { id: userId } = params;
+  const { id: userId } = await params;
 
   try {
     // Fetch the user with their votes and include the related poll to check its status

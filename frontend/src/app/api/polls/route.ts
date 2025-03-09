@@ -1,7 +1,9 @@
 import { PrismaClient } from '@prisma/client';
 import { NextResponse } from 'next/server';
+import { io } from 'socket.io-client';
 
 const prisma = new PrismaClient();
+const socket = io('http://localhost:3001'); // Connect to the backend server
 
 // GET: Fetch all polls
 export async function GET() {
@@ -42,6 +44,7 @@ export async function GET() {
     return NextResponse.json({ error: 'Failed to fetch polls' }, { status: 500 });
   }
 }
+
 // POST: Create a new poll
 export async function POST(request) {
   try {
@@ -69,7 +72,16 @@ export async function POST(request) {
         player2: { connect: { id: parseInt(player2Id) } },
         creator: { connect: { id: creatorId } },
       },
+      include: {
+        player1: true, // Include player1
+        player2: true, // Include player2
+        creator: true, // Include the creator
+        votes: true, // Include votes (if applicable)
+      },
     });
+
+    // Emit an event to notify all clients
+    socket.emit('pollCreated', newPoll);
 
     return NextResponse.json(newPoll, { status: 201 });
   } catch (error) {

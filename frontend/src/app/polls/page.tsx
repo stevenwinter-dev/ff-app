@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Loader from '../../components/Loader';
 import PollDisplay from '../../components/PollDisplay2';
+import socket from '../../lib/socket'; // Import the Socket.IO client
 
 export default function Polls() {
   const [polls, setPolls] = useState([]);
@@ -18,7 +19,6 @@ export default function Polls() {
       const data = await response.json();
       const openPolls = data.filter((poll) => poll.status === 'open');
       setPolls(openPolls);
-      console.log(openPolls)
       setLoading(false);
     } catch (error) {
       console.error('Error fetching polls:', error);
@@ -29,6 +29,30 @@ export default function Polls() {
 
   useEffect(() => {
     fetchPolls();
+
+    // Listen for new polls
+    socket.on('pollCreated', (newPoll) => {
+      console.log('Received pollCreated event:', newPoll);
+      if (newPoll.status === 'open') {
+        setPolls((prevPolls) => [...prevPolls, newPoll]);
+      }
+    });
+
+    // Listen for updated polls
+    socket.on('pollUpdated', (updatedPoll) => {
+      console.log('Received pollUpdated event:', updatedPoll);
+      setPolls((prevPolls) =>
+        prevPolls.map((poll) =>
+          poll.id === updatedPoll.id ? updatedPoll : poll
+        )
+      );
+    });
+
+    // Clean up event listeners
+    return () => {
+      socket.off('pollCreated');
+      socket.off('pollUpdated');
+    };
   }, []);
 
   if (loading) {
