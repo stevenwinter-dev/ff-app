@@ -32,7 +32,7 @@ export default function Home() {
         <div className="relative z-10 text-center">
           <h1 className="text-5xl font-bold mb-4">Make Smarter Fantasy Football Decisions</h1>
           <p className="text-xl mb-8">Create and vote on start/sit polls to improve your lineup decisions.</p>
-          <Link href="/polls" className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg text-lg">
+          <Link href="/polls" className="bg-pink-600 hover:bg-pink-700 text-white px-6 py-3 rounded-lg text-lg">
             View Polls
           </Link>
         </div>

@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import SocialMedia from './SocialMedia';
+import PollInsight from './PollInsight';
 
 export default function PollDisplay({ poll, onVote }) {
   const [selectedPlayerId, setSelectedPlayerId] = useState(null);
@@ -68,13 +69,13 @@ export default function PollDisplay({ poll, onVote }) {
   const pollUrl = `${window.location.origin}/poll/${poll.id}`;
 
   return (
-    <div className=" p-6 rounded-lg shadow-lg text-white flex flex-col h-[400px] relative">
+    <div className="p-6 rounded-lg shadow-lg text-zinc-950 flex flex-col h-[400px] relative">
       {/* Top Section: Player 1 vs. Player 2 */}
       <div className="text-center mb-6">
         <p className="text-xl font-bold">
           {poll.player1.position} {poll.player1.name}
         </p>
-        <p className="text-lg text-gray-400 my-2">or</p>
+        <p className="text-lg text-zinc-800 my-2">or</p>
         <p className="text-xl font-bold">
           {poll.player2.position} {poll.player2.name}
         </p>
@@ -82,35 +83,29 @@ export default function PollDisplay({ poll, onVote }) {
 
       {/* Middle Section: Poll Results (Visible After Voting) */}
       {hasVoted && (
-        <div className="mb-3 p-3 bg-gray-900 border border-emerald-400">
+        <div className="mb-3 p-3 border border-slate-950">
           {/* Player 1 Vote Bar */}
           <div className="flex items-center mb-4">
-            <div className="w-full bg-gray-800 h-6 relative">
-              <div
-                className="bg-blue-500 h-6"
-                style={{ width: `${player1Percentage}%` }}
-              ></div>
-              <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-sm text-white">
-                {player1Percentage.toFixed(1)}%
-              </span>
-            </div>
+            <PollInsight
+              votes={poll.votes.filter((vote) => vote.playerId === poll.player1Id)}
+              totalVotes={totalVotes}
+              barColor="bg-sky-400"
+              percentage={player1Percentage}
+            />
           </div>
 
           {/* Player 2 Vote Bar */}
           <div className="flex items-center">
-            <div className="w-full bg-gray-800 h-6 relative">
-              <div
-                className="bg-fuchsia-500 h-6"
-                style={{ width: `${player2Percentage}%` }}
-              ></div>
-              <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-sm text-white">
-                {player2Percentage.toFixed(1)}%
-              </span>
-            </div>
+            <PollInsight
+              votes={poll.votes.filter((vote) => vote.playerId === poll.player2Id)}
+              totalVotes={totalVotes}
+              barColor="bg-rose-500"
+              percentage={player2Percentage}
+            />
           </div>
 
           {/* Total Votes Display */}
-          <p className="text-sm text-gray-400 mt-2 text-center">
+          <p className="text-sm text-slate-950 mt-2 text-center">
             Total votes: {totalVotes}
           </p>
         </div>
@@ -127,14 +122,14 @@ export default function PollDisplay({ poll, onVote }) {
             <button
               onClick={() => handleVote(poll.player1.id)}
               disabled={hasVoted || selectedPlayerId === poll.player1.id || poll.status === 'closed'}
-              className="flex-1 bg-slate-950 hover:bg-slate-900 text-white py-6 cursor-pointer rounded-bl-lg disabled:opacity-50 disabled:cursor-not-allowed border-t-2 border-r border-white"
+              className="flex-1 bg-sky-400 hover:bg-sky-500 text-white py-6 cursor-pointer rounded-bl-lg disabled:opacity-50 disabled:cursor-not-allowed border-t-2 border-r border-white"
             >
               {hasVoted && selectedPlayerId === poll.player1.id ? 'Voted' : poll.player1.name}
             </button>
             <button
               onClick={() => handleVote(poll.player2.id)}
               disabled={hasVoted || selectedPlayerId === poll.player2.id || poll.status === 'closed'}
-              className="flex-1 bg-slate-950 hover:bg-slate-900 text-white py-6 cursor-pointer rounded-br-lg disabled:opacity-50 disabled:cursor-not-allowed border-t-2 border-l border-white"
+              className="flex-1 bg-rose-500 hover:bg-rose-600 text-white py-6 cursor-pointer rounded-br-lg disabled:opacity-50 disabled:cursor-not-allowed border-t-2 border-l border-white"
             >
               {hasVoted && selectedPlayerId === poll.player2.id ? 'Voted' : poll.player2.name}
             </button>
@@ -144,10 +139,10 @@ export default function PollDisplay({ poll, onVote }) {
 
       {/* Error Message */}
       {error && (
-        <div className="mt-4 p-2 bg-red-500 text-white text-sm rounded-lg text-center">
+        <div className="mt-4 p-2 bg-red-500 text-zinc-950 text-sm rounded-lg text-center">
           {error}
         </div>
       )}
     </div>
   );
-} 
+}

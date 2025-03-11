@@ -29,7 +29,6 @@ frontend/.next/
 **/bower_components/
 
 # Ignore TypeScript output
-**/*.js
 **/*.map
 !frontend/public/
 !backend/src/
