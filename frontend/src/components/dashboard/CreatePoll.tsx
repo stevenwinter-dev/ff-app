@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import PlayerSelect from './PlayerSelect';
 
 export default function CreatePoll({ creatorId }) {
   const [players, setPlayers] = useState([]); // List of all players
@@ -83,42 +84,20 @@ export default function CreatePoll({ creatorId }) {
       <h2 className="text-2xl font-bold mb-6">Create a Poll</h2>
 
       {/* Player 1 Selection */}
-      <div className="mb-4">
-        <label className="block text-sm font-medium mb-2">Player 1:</label>
-        <select
-          value={selectedPlayer1 || ''}
-          onChange={handlePlayer1Change}
-          className="w-full p-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-blue-500"
-        >
-          <option value="" disabled>
-            Select a player
-          </option>
-          {players.map((player) => (
-            <option key={player.id} value={player.id} className="bg-gray-800">
-              {player.name} ({player.position})
-            </option>
-          ))}
-        </select>
-      </div>
+      <PlayerSelect
+        label="Player 1:"
+        players={players}
+        selectedPlayer={selectedPlayer1}
+        onChange={handlePlayer1Change}
+      />
 
       {/* Player 2 Selection */}
-      <div className="mb-6">
-        <label className="block text-sm font-medium mb-2">Player 2:</label>
-        <select
-          value={selectedPlayer2 || ''}
-          onChange={handlePlayer2Change}
-          className="w-full p-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-blue-500"
-        >
-          <option value="" disabled>
-            Select a player
-          </option>
-          {players.map((player) => (
-            <option key={player.id} value={player.id} className="bg-gray-800">
-              {player.name} ({player.position})
-            </option>
-          ))}
-        </select>
-      </div>
+      <PlayerSelect
+        label="Player 2:"
+        players={players}
+        selectedPlayer={selectedPlayer2}
+        onChange={handlePlayer2Change}
+      />
 
       {/* Create Poll Button */}
       <button

@@ -2,7 +2,7 @@ import React from 'react';
 
 export default function SocialMedia({ poll, pollUrl, pollId }) {
   return (
-    <div className="flex justify-center space-x-4 w-full p-4 bg-slate-950 border-t-2 border-white">
+    <div className="flex justify-center space-x-4 w-full p-4 py-6 bg-gradient-to-r from-slate-950 via-indigo-950 to-slate-950 border-t-2 border-white rounded-bl-lg rounded-br-lg">
       <a
         href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(pollUrl)}&text=${encodeURIComponent(`I just voted on this poll! Who would you choose: ${poll.player1.name} or ${poll.player2.name}?`)}`}
         target="_blank"
