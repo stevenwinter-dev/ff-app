@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Loader from '../../components/Loader';
-import PollDisplay from '../../components/PollDisplay2';
+import Loader from '../../components/global/Loader';
+import PollDisplay from '../../components/poll/PollDisplay';
 import socket from '../../lib/socket'; // Import the Socket.IO client
 
 export default function Polls() {

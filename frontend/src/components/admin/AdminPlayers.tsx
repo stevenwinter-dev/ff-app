@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Loader from '../Loader';
+import Loader from '../global/Loader';
 
 export default function AdminPlayers() {
   const [players, setPlayers] = useState([]);

@@ -30,7 +30,7 @@ export default function PollInsight({ votes, totalVotes, barColor, percentage })
               <li key={vote.id} className="text-sm text-gray-700">
                 <span>{vote.user.username}</span>
                 <div className='ml-8 flex gap-4'>
-                    <span>{vote.user.accuracyScore}%</span>
+                    <span>{vote.user.accuracyScore.toFixed(2)}%</span>
                     <span>{vote.user.weightedScore.toFixed(0)}</span>
                 </div>
               </li>
