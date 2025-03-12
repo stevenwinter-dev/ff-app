@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 interface Player {
   id: number;
@@ -10,27 +10,61 @@ interface PlayerSelectProps {
   label: string;
   players: Player[];
   selectedPlayer: string | null;
-  onChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
+  onChange: (playerId: string) => void;
 }
 
 export default function PlayerSelect({ label, players, selectedPlayer, onChange }: PlayerSelectProps) {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+
+  // Filter players based on search term
+  const filteredPlayers = players.filter((player) =>
+    player.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Handle input change
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(event.target.value);
+    setIsDropdownVisible(true);
+  };
+
+  // Handle player selection
+  const handlePlayerSelect = (playerId: string) => {
+    onChange(playerId);
+    setSearchTerm(players.find((player) => player.id === parseInt(playerId))?.name || '');
+    setIsDropdownVisible(false);
+  };
+
   return (
-    <div className="mb-4">
+    <div className="mb-4 relative">
       <label className="block text-sm font-medium mb-2">{label}</label>
-      <select
-        value={selectedPlayer || ''}
-        onChange={onChange}
+      <input
+        type="text"
+        value={searchTerm}
+        onChange={handleInputChange}
+        onFocus={() => setIsDropdownVisible(true)}
+        onBlur={() => setTimeout(() => setIsDropdownVisible(false), 200)} // Delay to allow click on dropdown
+        placeholder="Search player by name"
         className="w-full p-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-blue-500"
-      >
-        <option value="" disabled>
-          Select a player
-        </option>
-        {players.map((player) => (
-          <option key={player.id} value={player.id} className="bg-gray-800">
-            {player.name} ({player.position})
-          </option>
-        ))}
-      </select>
+      />
+
+      {/* Dropdown list */}
+      {isDropdownVisible && searchTerm && (
+        <div className="absolute z-10 w-full mt-1 bg-gray-800 border border-gray-700 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+          {filteredPlayers.map((player) => (
+            <div
+              key={player.id}
+              onClick={() => handlePlayerSelect(player.id.toString())}
+              className="p-2 hover:bg-gray-700 cursor-pointer"
+            >
+              {player.name} ({player.position})
+            </div>
+          ))}
+          {filteredPlayers.length === 0 && (
+            <div className="p-2 text-gray-400">No players found</div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

@@ -24,12 +24,12 @@ export default function CreatePoll({ creatorId }) {
   }, []);
 
   // Handle player selection
-  const handlePlayer1Change = (event) => {
-    setSelectedPlayer1(event.target.value);
+  const handlePlayer1Change = (playerId: string) => {
+    setSelectedPlayer1(playerId);
   };
 
-  const handlePlayer2Change = (event) => {
-    setSelectedPlayer2(event.target.value);
+  const handlePlayer2Change = (playerId: string) => {
+    setSelectedPlayer2(playerId);
   };
 
   // Handle poll creation
