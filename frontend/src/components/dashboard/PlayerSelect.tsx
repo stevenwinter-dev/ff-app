@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface Player {
   id: number;
@@ -16,6 +16,13 @@ interface PlayerSelectProps {
 export default function PlayerSelect({ label, players, selectedPlayer, onChange }: PlayerSelectProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+
+  // Reset searchTerm when selectedPlayer is cleared
+  useEffect(() => {
+    if (!selectedPlayer) {
+      setSearchTerm('');
+    }
+  }, [selectedPlayer]);
 
   // Filter players based on search term
   const filteredPlayers = players.filter((player) =>

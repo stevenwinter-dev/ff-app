@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 import PlayerSelect from './PlayerSelect';
+import { toast } from 'react-toastify';
+import Loader from '../global/Loader'; // Import the Loader component
 
 export default function CreatePoll({ creatorId }) {
   const [players, setPlayers] = useState([]); // List of all players
   const [selectedPlayer1, setSelectedPlayer1] = useState(null); // Selected player 1
   const [selectedPlayer2, setSelectedPlayer2] = useState(null); // Selected player 2
   const [loading, setLoading] = useState(true); // Loading state for players
-  const [error, setError] = useState(''); // Error message
+  const [isCreatingPoll, setIsCreatingPoll] = useState(false); // Loading state for poll creation
 
   // Fetch all players from the API
   useEffect(() => {
@@ -18,7 +20,7 @@ export default function CreatePoll({ creatorId }) {
       })
       .catch((error) => {
         console.error('Error fetching players:', error);
-        setError('Failed to fetch players');
+        toast.error('Failed to fetch players'); // Use toast for errors
         setLoading(false);
       });
   }, []);
@@ -35,14 +37,16 @@ export default function CreatePoll({ creatorId }) {
   // Handle poll creation
   const handleCreatePoll = async () => {
     if (!selectedPlayer1 || !selectedPlayer2 || selectedPlayer1 === selectedPlayer2) {
-      setError('Please select two different players.');
+      toast.error('Please select two different players.');
       return;
     }
 
     if (!creatorId) {
-      setError('You must be logged in to create a poll.');
+      toast.error('You must be logged in to create a poll.');
       return;
     }
+
+    setIsCreatingPoll(true); // Show loader
 
     try {
       const response = await fetch('/api/polls', {
@@ -63,20 +67,21 @@ export default function CreatePoll({ creatorId }) {
 
       const newPoll = await response.json();
       console.log('Poll created:', newPoll);
-      setError(''); // Clear any previous errors
-      alert('Poll created successfully!');
+      toast.success('Poll created successfully!');
+
+      // Clear inputs after successful creation
+      setSelectedPlayer1(null);
+      setSelectedPlayer2(null);
     } catch (error) {
       console.error('Error creating poll:', error);
-      setError('Failed to create poll');
+      toast.error('Failed to create poll');
+    } finally {
+      setIsCreatingPoll(false); // Hide loader
     }
   };
 
   if (loading) {
     return <div className="text-white">Loading players...</div>;
-  }
-
-  if (error) {
-    return <div className="text-red-500">{error}</div>;
   }
 
   return (
@@ -99,20 +104,17 @@ export default function CreatePoll({ creatorId }) {
         onChange={handlePlayer2Change}
       />
 
-      {/* Create Poll Button */}
-      <button
-        onClick={handleCreatePoll}
-        disabled={!selectedPlayer1 || !selectedPlayer2 || selectedPlayer1 === selectedPlayer2}
-        className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2 px-4 rounded-lg hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        Create Poll
-      </button>
-
-      {/* Error Message */}
-      {error && (
-        <div className="mt-4 p-2 bg-red-500 text-white text-sm rounded-lg">
-          {error}
-        </div>
+      {/* Create Poll Button or Loader */}
+      {isCreatingPoll ? (
+        <Loader /> // Show loader while creating poll
+      ) : (
+        <button
+          onClick={handleCreatePoll}
+          disabled={!selectedPlayer1 || !selectedPlayer2 || selectedPlayer1 === selectedPlayer2}
+          className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2 px-4 rounded-lg hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Create Poll
+        </button>
       )}
     </div>
   );

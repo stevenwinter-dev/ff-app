@@ -2,4 +2,9 @@
 
 :root {
     --gradient-bg: linear-gradient(to right, #0f172a, #312e81, #0f172a);
+    --toastify-color-progress-success: linear-gradient(to right, #0f172a, #312e81, #0f172a);
+}
+
+.Toastify__progress-bar--success {
+    background: #38bdf8!important;
 }
