@@ -60,11 +60,13 @@ export const authOptions = {
     }),
   ],
   callbacks: {
-    async session({ session, user }) {
+    async session({ session, user, token }) {
       // Add user ID and username to the session
       if (user) {
         session.user.id = user.id;
         session.user.username = user.username;
+      } else if (token) {
+        session.user.id = token.sub; // Use the token's sub (user ID) if user is not available
       }
       return session;
     },
