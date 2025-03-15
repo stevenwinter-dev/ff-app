@@ -10,6 +10,8 @@ export default function SetUsername() {
   const { data: session, update } = useSession();
   const router = useRouter();
 
+  console.log('Session in SetUsername:', session); // Debugging: Log the session
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -22,8 +24,10 @@ export default function SetUsername() {
         body: JSON.stringify({ username }),
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        throw new Error('Failed to set username');
+        throw new Error(data.error || 'Failed to set username');
       }
 
       // Update the session with the new username
@@ -33,7 +37,7 @@ export default function SetUsername() {
       router.push('/');
     } catch (error) {
       console.error('Error setting username:', error);
-      setError('Failed to set username. Please try again.');
+      setError(error.message || 'Failed to set username. Please try again.');
     }
   };
 

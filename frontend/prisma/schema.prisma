@@ -16,14 +16,16 @@ datasource db {
 // prisma/schema.prisma
 model User {
   // Authentication fields
-  id            String    @id @default(cuid())
-  name          String?
-  username      String?   @unique // Add this line
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
-  accounts      Account[]
-  sessions      Session[]
+  id              String    @id @default(cuid())
+  name            String?
+  username        String?   @unique
+  email           String?   @unique
+  emailVerified   DateTime?
+  image           String?
+  password        String?   // Add this field for email/password authentication
+  verificationToken String? // Add this field for email verification
+  accounts        Account[]
+  sessions        Session[]
 
   // Custom fields
   accuracyPoints      Int      @default(0)

@@ -6,11 +6,15 @@ import { authOptions } from '../../auth/[...nextauth]/route';
 export async function POST(request) {
   const session = await getServerSession(authOptions);
 
-  if (!session) {
+  console.log('Session:', session); // Debugging: Log the session
+
+  if (!session || !session.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   const { username } = await request.json();
+
+  console.log('Username:', username); // Debugging: Log the username
 
   try {
     // Check if the username is already taken
@@ -27,6 +31,8 @@ export async function POST(request) {
       where: { id: session.user.id },
       data: { username },
     });
+
+    console.log('Updated User:', updatedUser); // Debugging: Log the updated user
 
     return NextResponse.json(updatedUser);
   } catch (error) {
