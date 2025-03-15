@@ -27,7 +27,7 @@ export default function SignInPage() {
         setError(result.error);
       }
     } else {
-      router.push('/set-username'); // Redirect to set username
+        router.push('/dashboard');
     }
   };
 
@@ -61,7 +61,7 @@ export default function SignInPage() {
           </button>
         </form>
         <button
-          onClick={() => signIn('google')}
+          onClick={() => signIn('google', { callbackUrl: '/dashboard' })}
           className="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded mt-4"
         >
           Sign in with Google

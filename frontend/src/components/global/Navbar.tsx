@@ -7,9 +7,6 @@ import SignInButton from './SignIn';
 export default function Navbar() {
   const { data: session, status } = useSession();
 
-  console.log('Navbar Session:', session); // Debugging: Log the session
-  console.log('Navbar Status:', status); // Debugging: Log the session status
-
   return (
     <nav className='bg-gradient-to-r from-slate-950 via-indigo-950 to-slate-950'>
       <ul className="flex space-x-4 p-8">
