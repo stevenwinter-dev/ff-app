@@ -8,7 +8,7 @@ import NotFound from '../global/NotFound'; // Create a 404 component
 
 export default function AdminPanel() {
   const { data: session } = useSession();
-  const [activeTab, setActiveTab] = useState(null); // Track which tab is active
+  const [activeTab, setActiveTab] = useState('polls'); // Track which tab is active
 
   // Check if the user is the admin
   if (session?.user?.email !== 'steveplayshorn@gmail.com') {
@@ -16,7 +16,7 @@ export default function AdminPanel() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-8">
+    <div className="min-h-screen bg-white text-gray-900 p-8">
       <h1 className="text-3xl font-bold mb-8">Admin Panel</h1>
 
       <div className="flex space-x-4 mb-8">
