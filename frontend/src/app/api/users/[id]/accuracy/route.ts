@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import prisma from '../../../../../lib/prisma';
 
 export async function GET(request: Request, { params }: { params: { id: string } }) {
-  const { id: userId } = await params;
+  const { id: userId } =  await params;
 
   try {
     // Fetch the user with their votes and include the related poll to check its status
@@ -27,13 +27,13 @@ export async function GET(request: Request, { params }: { params: { id: string }
     // Calculate accuracy based on resolved votes only
     const totalResolvedVotes = resolvedVotes.length;
     const accurateVotes = resolvedVotes.filter((vote) => vote.isCorrect).length;
-    const accuracyScore =
-      totalResolvedVotes === 0 ? 0 : (accurateVotes / totalResolvedVotes) * 100;
 
     return NextResponse.json({
       totalResolvedVotes, // Total votes in resolved polls
       accurateVotes, // Votes that were correct
-      accuracyScore, // Accuracy percentage
+      weightedScore: user.weightedScore, // Use the weightedScore from the User model
+      accuracyScore: user.accuracyScore, // Use the accuracyScore from the User model
+      totalVotes: user.votes.length, // Total votes cast by the user
     });
   } catch (error) {
     console.error('Error fetching user accuracy:', error);

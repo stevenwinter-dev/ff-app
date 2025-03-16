@@ -5,7 +5,13 @@ import { useSession } from 'next-auth/react';
 
 export default function Accuracy() {
   const { data: session } = useSession();
-  const [accuracy, setAccuracy] = useState({ totalVotes: 0, accurateVotes: 0, score: 0 });
+  const [accuracy, setAccuracy] = useState({
+    totalResolvedVotes: 0,
+    accurateVotes: 0,
+    weightedScore: 0,
+    accuracyScore: 0,
+    totalVotes: 0,
+  });
   const [loading, setLoading] = useState(true);
   const [animatedPercentage, setAnimatedPercentage] = useState(0);
 
@@ -21,11 +27,14 @@ export default function Accuracy() {
         })
         .then((data) => {
           setAccuracy({
-            totalVotes: data.totalVotes,
+            totalResolvedVotes: data.totalResolvedVotes,
             accurateVotes: data.accurateVotes,
-            score: data.accuracyScore,
+            weightedScore: data.weightedScore,
+            accuracyScore: data.accuracyScore,
+            totalVotes: data.totalVotes,
           });
           setLoading(false);
+          console.log('Accuracy data:', data);
         })
         .catch((error) => {
           console.error('Error fetching accuracy:', error);
@@ -34,18 +43,18 @@ export default function Accuracy() {
     }
   }, [session]);
 
-  // Animate the accuracy percentage
+  // Animate the accuracy score percentage
   useEffect(() => {
     let start = 0;
     const duration = 1000; // Animation duration in milliseconds
     const stepTime = 10; // Interval between updates
     const steps = duration / stepTime;
-    const increment = accuracy.score / steps;
+    const increment = accuracy.accuracyScore / steps;
 
     const animate = () => {
       start += increment;
-      if (start >= accuracy.score) {
-        setAnimatedPercentage(accuracy.score);
+      if (start >= accuracy.accuracyScore) {
+        setAnimatedPercentage(accuracy.accuracyScore);
       } else {
         setAnimatedPercentage(start);
         setTimeout(animate, stepTime);
@@ -55,7 +64,7 @@ export default function Accuracy() {
     if (!loading) {
       animate();
     }
-  }, [accuracy.score, loading]);
+  }, [accuracy.accuracyScore, loading]);
 
   if (loading) {
     return <p className="text-white">Loading accuracy data...</p>;
@@ -77,23 +86,19 @@ export default function Accuracy() {
           }}
         ></div>
         <div className="absolute inset-4 bg-gray-900 rounded-full flex items-center justify-center">
-          <span className="text-xl font-bold">{accuracy.score.toFixed(1)}%</span>
+          <span className="text-xl font-bold">{accuracy.accuracyScore.toFixed(2)}%</span>
         </div>
       </div>
 
       {/* Accuracy Details */}
       <div className="space-y-3">
         <div className="flex justify-between items-center">
-          <span className="text-sm text-gray-400">Total Votes:</span>
-          <span className="text-sm font-medium">{accuracy.totalVotes}</span>
+          <span className="text-sm text-gray-400">Votes:</span>
+          <span className="text-sm font-medium">{accuracy.accurateVotes}/{accuracy.totalResolvedVotes} <br />{accuracy.totalVotes - accuracy.totalResolvedVotes} votes in active polls</span>
         </div>
         <div className="flex justify-between items-center">
-          <span className="text-sm text-gray-400">Accurate Votes:</span>
-          <span className="text-sm font-medium">{accuracy.accurateVotes}</span>
-        </div>
-        <div className="flex justify-between items-center">
-          <span className="text-sm text-gray-400">Accuracy Score:</span>
-          <span className="text-sm font-medium">{accuracy.score.toFixed(1)}%</span>
+          <span className="text-sm text-gray-400">Weighted Score:</span>
+          <span className="text-sm font-medium">{accuracy.weightedScore.toFixed(2)} points</span>
         </div>
       </div>
     </div>

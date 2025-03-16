@@ -33,9 +33,13 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-slate-50 text-white`}
       >
         <SessionProviderWrapper>
-          <Navbar />
-            {children}
-          <Footer />
+          <div className="flex flex-col min-h-screen">
+            <Navbar />
+            <main className="flex-grow">
+              {children}
+            </main>
+            <Footer />
+          </div>
         </SessionProviderWrapper>
         <ToastContainer position="bottom-center" autoClose={3000} />
       </body>
