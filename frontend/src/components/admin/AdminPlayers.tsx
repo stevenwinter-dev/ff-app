@@ -126,8 +126,6 @@ export default function AdminPlayers() {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-4">Manage Players</h2>
-
       {/* Create Single Player Form */}
       <div className="mb-8">
         <h3 className="text-xl font-bold mb-2">Create New Player</h3>

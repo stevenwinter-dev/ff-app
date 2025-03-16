@@ -7,7 +7,8 @@ const calculateWeightedScore = (accuracyScore: number, participationScore: numbe
 };
 
 export async function POST(request: Request, { params }: { params: { id: string } }) {
-  const pollId = parseInt(params.id);
+  const url = new URL(request.url);
+  const pollId = parseInt(url.pathname.split('/').slice(-2, -1)[0]);
   const { winningPlayerId } = await request.json();
 
   try {

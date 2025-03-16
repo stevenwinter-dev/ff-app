@@ -2,17 +2,20 @@
 
 import { useState, useEffect } from 'react';
 import Loader from '../global/Loader';
+import PollTabs from './PollTabs';
+import PollTable from './PollTable';
+import { toast } from 'react-toastify';
 
 export default function AdminPolls() {
   const [polls, setPolls] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [deletingPollId, setDeletingPollId] = useState(null); // Track which poll is being deleted
-  const [resettingPollId, setResettingPollId] = useState(null); // Track which poll's votes are being reset
-  const [updatingPollId, setUpdatingPollId] = useState(null); // Track which poll is being updated
-  const [winningPlayerIds, setWinningPlayerIds] = useState({}); // Track the selected winner for each poll
-  const [changingStatusPollId, setChangingStatusPollId] = useState(null); // Track which poll's status is being changed
-  const [activeTab, setActiveTab] = useState('open'); // Track the active tab
+  const [deletingPollId, setDeletingPollId] = useState(null);
+  const [resettingPollId, setResettingPollId] = useState(null);
+  const [updatingPollId, setUpdatingPollId] = useState(null);
+  const [winningPlayerIds, setWinningPlayerIds] = useState({});
+  const [changingStatusPollId, setChangingStatusPollId] = useState(null);
+  const [activeTab, setActiveTab] = useState('open');
 
   // Fetch polls from the API
   useEffect(() => {
@@ -31,7 +34,7 @@ export default function AdminPolls() {
 
   // Handle delete poll
   const handleDeletePoll = async (pollId) => {
-    setDeletingPollId(pollId); // Set the poll being deleted
+    setDeletingPollId(pollId);
     try {
       const response = await fetch(`/api/polls/${pollId}`, {
         method: 'DELETE',
@@ -41,19 +44,18 @@ export default function AdminPolls() {
         throw new Error('Failed to delete poll');
       }
 
-      // Remove the deleted poll from the state
       setPolls(polls.filter((poll) => poll.id !== pollId));
     } catch (error) {
       console.error('Error deleting poll:', error);
       setError('Failed to delete poll');
     } finally {
-      setDeletingPollId(null); // Clear the deleting state
+      setDeletingPollId(null);
     }
   };
 
   // Handle reset poll (delete votes)
   const handleResetPoll = async (pollId) => {
-    setResettingPollId(pollId); // Set the poll being reset
+    setResettingPollId(pollId);
     try {
       const response = await fetch(`/api/polls/${pollId}/votes`, {
         method: 'DELETE',
@@ -63,14 +65,13 @@ export default function AdminPolls() {
         throw new Error('Failed to reset poll');
       }
 
-      // Refetch the polls to update the vote count
       const updatedPolls = await fetch('/api/polls').then((res) => res.json());
       setPolls(updatedPolls);
     } catch (error) {
       console.error('Error resetting poll:', error);
       setError('Failed to reset poll');
     } finally {
-      setResettingPollId(null); // Clear the resetting state
+      setResettingPollId(null);
     }
   };
 
@@ -82,7 +83,7 @@ export default function AdminPolls() {
       return;
     }
 
-    setUpdatingPollId(pollId); // Set the poll being updated
+    setUpdatingPollId(pollId);
     try {
       const response = await fetch(`/api/polls/${pollId}/manualUpdate`, {
         method: 'POST',
@@ -94,23 +95,21 @@ export default function AdminPolls() {
         throw new Error('Failed to update poll');
       }
 
-      // Refetch the polls to update the results
+      toast.success('Poll updated successfully!');
       const updatedPolls = await fetch('/api/polls').then((res) => res.json());
       setPolls(updatedPolls);
-
-      // Reset the selected winner for this poll
       setWinningPlayerIds((prev) => ({ ...prev, [pollId]: null }));
     } catch (error) {
       console.error('Error updating poll:', error);
       setError('Failed to update poll');
     } finally {
-      setUpdatingPollId(null); // Clear the updating state
+      setUpdatingPollId(null);
     }
   };
 
   // Handle open/close poll
   const handleChangePollStatus = async (pollId, status) => {
-    setChangingStatusPollId(pollId); // Set the poll being updated
+    setChangingStatusPollId(pollId);
     try {
       const response = await fetch(`/api/polls/${pollId}/status`, {
         method: 'PUT',
@@ -122,20 +121,57 @@ export default function AdminPolls() {
         throw new Error('Failed to update poll status');
       }
 
-      // Refetch the polls to update the status
       const updatedPolls = await fetch('/api/polls').then((res) => res.json());
       setPolls(updatedPolls);
     } catch (error) {
       console.error('Error updating poll status:', error);
       setError('Failed to update poll status');
     } finally {
-      setChangingStatusPollId(null); // Clear the updating state
+      setChangingStatusPollId(null);
     }
   };
 
   // Handle selecting a winner for a specific poll
   const handleSelectWinner = (pollId, playerId) => {
     setWinningPlayerIds((prev) => ({ ...prev, [pollId]: playerId }));
+  };
+
+  // Get unique players from active polls
+  const getUniquePlayers = () => {
+    const activePolls = polls.filter((poll) => poll.status === 'open' || poll.status === 'closed');
+    const players = new Set<string>();
+
+    activePolls.forEach((poll) => {
+      players.add(poll.player1.name);
+      players.add(poll.player2.name);
+    });
+
+    return Array.from(players);
+  };
+
+  // Handle batch resolve
+  const handleBatchResolve = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('/api/polls/batch-resolve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      if (response.ok) {
+        toast.success('All polls resolved successfully!');
+        const updatedPolls = await fetch('/api/polls').then((res) => res.json());
+        setPolls(updatedPolls);
+      } else {
+        const errorData = await response.json();
+        toast.error(`Failed to resolve polls: ${errorData.message || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error('Error resolving polls:', error);
+      toast.error('An error occurred while resolving polls.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Filter polls based on the active tab
@@ -156,127 +192,45 @@ export default function AdminPolls() {
 
   return (
     <div>
-  <h2 className="text-2xl font-bold mb-4">Manage Polls</h2>
+      <h2 className="text-2xl font-bold mb-4">Manage Polls</h2>
+      <PollTabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
-  {/* Tab Navigation */}
-  <div className="flex space-x-4 mb-6 border-b border-gray-200">
-    <button
-      onClick={() => setActiveTab('open')}
-      className={`px-4 py-2 text-sm font-medium ${
-        activeTab === 'open'
-          ? 'border-b-2 border-blue-600 text-blue-600'
-          : 'text-gray-500 hover:text-gray-700'
-      }`}
-    >
-      Open Polls
-    </button>
-    <button
-      onClick={() => setActiveTab('closed')}
-      className={`px-4 py-2 text-sm font-medium ${
-        activeTab === 'closed'
-          ? 'border-b-2 border-blue-600 text-blue-600'
-          : 'text-gray-500 hover:text-gray-700'
-      }`}
-    >
-      Closed Polls
-    </button>
-    <button
-      onClick={() => setActiveTab('resolved')}
-      className={`px-4 py-2 text-sm font-medium ${
-        activeTab === 'resolved'
-          ? 'border-b-2 border-blue-600 text-blue-600'
-          : 'text-gray-500 hover:text-gray-700'
-      }`}
-    >
-      Resolved Polls
-    </button>
-  </div>
-
-  {/* Table Layout */}
-    <div className="overflow-x-auto">
-      <table className="min-w-full bg-white border border-gray-300">
-        <thead>
-          <tr className="bg-gray-100">
-            <th className="px-4 py-2 text-left">Matchup</th>
-            <th className="px-4 py-2 text-left">Poll ID</th>
-            <th className="px-4 py-2 text-left">Created By</th>
-            <th className="px-4 py-2 text-left">Created At</th>
-            <th className="px-4 py-2 text-left">Votes</th>
-            <th className="px-4 py-2 text-left">Status</th>
-            <th className="px-4 py-2 text-left">Actions</th>
-            <th className="px-4 py-2 text-left">Update Results</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredPolls.map((poll) => (
-            <tr key={poll.id} className="border-b border-gray-200 hover:bg-gray-50">
-              <td className="px-4 py-2">
-                {poll.player1.name} {poll.player1.position} vs {poll.player2.name} {poll.player2.position}
-              </td>
-              <td className="px-4 py-2">{poll.id}</td>
-              <td className="px-4 py-2">{poll.creator.name}</td>
-              <td className="px-4 py-2">{new Date(poll.createdAt).toLocaleString()}</td>
-              <td className="px-4 py-2">{poll.votes.length}</td>
-              <td className="px-4 py-2">{poll.status}</td>
-              <td className="px-4 py-2">
-                <div className="flex space-x-2">
-                  <button
-                    onClick={() => handleDeletePoll(poll.id)}
-                    disabled={deletingPollId === poll.id}
-                    className="bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded text-sm disabled:opacity-50"
-                  >
-                    {deletingPollId === poll.id ? 'Deleting...' : 'Delete'}
-                  </button>
-                  <button
-                    onClick={() => handleResetPoll(poll.id)}
-                    disabled={resettingPollId === poll.id}
-                    className="bg-yellow-600 hover:bg-yellow-700 text-white px-2 py-1 rounded text-sm disabled:opacity-50"
-                  >
-                    {resettingPollId === poll.id ? 'Resetting...' : 'Reset'}
-                  </button>
-                  <button
-                    onClick={() => handleChangePollStatus(poll.id, poll.status === 'open' ? 'closed' : 'open')}
-                    disabled={changingStatusPollId === poll.id}
-                    className="bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded text-sm disabled:opacity-50"
-                  >
-                    {changingStatusPollId === poll.id ? 'Updating...' : poll.status === 'open' ? 'Close' : 'Open'}
-                  </button>
-                </div>
-              </td>
-              <td className="px-4 py-2">
-                <div className="flex flex-col space-y-2">
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      checked={winningPlayerIds[poll.id] === poll.player1.id}
-                      onChange={() => handleSelectWinner(poll.id, poll.player1.id)}
-                      className="form-checkbox h-4 w-4 text-blue-600"
-                    />
-                    <span className="text-sm">{poll.player1.name}</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      checked={winningPlayerIds[poll.id] === poll.player2.id}
-                      onChange={() => handleSelectWinner(poll.id, poll.player2.id)}
-                      className="form-checkbox h-4 w-4 text-blue-600"
-                    />
-                    <span className="text-sm">{poll.player2.name}</span>
-                  </div>
-                  <button
-                    onClick={() => handleManualUpdate(poll.id)}
-                    disabled={updatingPollId === poll.id || !winningPlayerIds[poll.id]}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded text-sm disabled:opacity-50"
-                  >
-                    {updatingPollId === poll.id ? 'Updating...' : 'Update'}
-                  </button>
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      {activeTab === 'batch-resolve' ? (
+        <div>
+          <h3 className="text-xl font-bold mb-4">Batch Resolve</h3>
+          <div className="mb-4">
+            <h4 className="text-lg font-semibold mb-2">Unique Players in Active Polls</h4>
+            <ul className="list-disc list-inside">
+              {getUniquePlayers().map((player, index) => (
+                <li key={index} className="text-gray-700">
+                  {player}
+                </li>
+              ))}
+            </ul>
+          </div>
+          <button
+            onClick={handleBatchResolve}
+            disabled={loading}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded disabled:opacity-50"
+          >
+            {loading ? 'Resolving...' : 'Resolve All Polls'}
+          </button>
+        </div>
+      ) : (
+        <PollTable
+          polls={filteredPolls}
+          handleDeletePoll={handleDeletePoll}
+          handleResetPoll={handleResetPoll}
+          handleChangePollStatus={handleChangePollStatus}
+          handleSelectWinner={handleSelectWinner}
+          handleManualUpdate={handleManualUpdate}
+          deletingPollId={deletingPollId}
+          resettingPollId={resettingPollId}
+          changingStatusPollId={changingStatusPollId}
+          updatingPollId={updatingPollId}
+          winningPlayerIds={winningPlayerIds}
+        />
+      )}
     </div>
-  </div>
   );
 }
