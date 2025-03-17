@@ -26,6 +26,11 @@ io.on('connection', (socket) => {
     io.emit('pollUpdated', pollUpdated); // Broadcast the message to all clients
   });
 
+  socket.on('voteSubmitted', (updatedPoll) => {
+    console.log('Vote submitted:', updatedPoll);
+    io.emit('voteSubmitted', updatedPoll); // Broadcast the updated poll to all clients
+  });
+
   // Handle disconnection
   socket.on('disconnect', () => {
     console.log('A user disconnected:', socket.id);

@@ -1,15 +1,16 @@
+// frontend/src/app/api/votes/route.ts
+
 import { PrismaClient } from '@prisma/client';
 import { NextResponse } from 'next/server';
+import { io } from 'socket.io-client';
 
 const prisma = new PrismaClient();
+const socket = io('http://localhost:3001'); // Connect to the backend server
 
 // POST: Submit a vote
 export async function POST(request) {
   try {
     const { pollId, playerId, userId } = await request.json();
-
-    // Log the input for debugging
-    console.log('Received vote submission:', { pollId, playerId, userId });
 
     // Validate input
     if (!pollId || !playerId || !userId) {
@@ -34,7 +35,7 @@ export async function POST(request) {
     // Check if the player belongs to the poll
     const poll = await prisma.poll.findUnique({
       where: { id: parseInt(pollId) },
-      include: { player1: true, player2: true },
+      include: { player1: true, player2: true, votes: true },
     });
 
     if (!poll) {
@@ -79,6 +80,24 @@ export async function POST(request) {
         player: true,
       },
     });
+
+    // Fetch the updated poll with votes
+    const updatedPoll = await prisma.poll.findUnique({
+      where: { id: parseInt(pollId) },
+      include: {
+        player1: true,
+        player2: true,
+        votes: {
+          include: {
+            user: true,
+            player: true,
+          },
+        },
+      },
+    });
+
+    // Emit the voteSubmitted event
+    socket.emit('voteSubmitted', updatedPoll);
 
     return NextResponse.json(newVote, { status: 201 });
   } catch (error) {

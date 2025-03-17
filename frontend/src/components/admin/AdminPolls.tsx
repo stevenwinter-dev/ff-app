@@ -236,7 +236,13 @@ export default function AdminPolls() {
             <textarea
               value={playerPointsJson}
               onChange={(e) => setPlayerPointsJson(e.target.value)}
-              placeholder="Paste JSON here"
+              placeholder='Paste JSON here: [
+                { "name": "Stefon Diggs", "score": 28 },
+                { "name": "Steven Winter", "score": 15 },
+                { "name": "Jalen Hurts", "score": 30 },
+                { "name": "Julian Winter", "score": 10 },
+                { "name": "Derrick Henry", "score": 22 }
+              ]'
               className="w-full p-2 border border-gray-300 rounded"
               rows={10}
             />

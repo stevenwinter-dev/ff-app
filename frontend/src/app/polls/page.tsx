@@ -29,7 +29,7 @@ export default function Polls() {
 
   useEffect(() => {
     fetchPolls();
-
+  
     // Listen for new polls
     socket.on('pollCreated', (newPoll) => {
       console.log('Received pollCreated event:', newPoll);
@@ -37,7 +37,7 @@ export default function Polls() {
         setPolls((prevPolls) => [...prevPolls, newPoll]);
       }
     });
-
+  
     // Listen for updated polls
     socket.on('pollUpdated', (updatedPoll) => {
       console.log('Received pollUpdated event:', updatedPoll);
@@ -47,11 +47,22 @@ export default function Polls() {
         )
       );
     });
-
-    // Clean up event listeners
+  
+    // Listen for vote submissions
+    socket.on('voteSubmitted', (updatedPoll) => {
+      console.log('Received voteSubmitted event:', updatedPoll);
+      setPolls((prevPolls) =>
+        prevPolls.map((poll) =>
+          poll.id === updatedPoll.id ? updatedPoll : poll
+        )
+      );
+    });
+  
+    // Clean up all event listeners
     return () => {
       socket.off('pollCreated');
       socket.off('pollUpdated');
+      socket.off('voteSubmitted');
     };
   }, []);
 
