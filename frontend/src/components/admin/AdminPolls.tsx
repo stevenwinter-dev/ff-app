@@ -16,6 +16,7 @@ export default function AdminPolls() {
   const [winningPlayerIds, setWinningPlayerIds] = useState({});
   const [changingStatusPollId, setChangingStatusPollId] = useState(null);
   const [activeTab, setActiveTab] = useState('open');
+  const [playerPointsJson, setPlayerPointsJson] = useState(''); // JSON input for player points
 
   // Fetch polls from the API
   useEffect(() => {
@@ -138,10 +139,10 @@ export default function AdminPolls() {
 
   // Get unique players from active polls
   const getUniquePlayers = () => {
-    const activePolls = polls.filter((poll) => poll.status === 'open' || poll.status === 'closed');
-    const players = new Set<string>();
+    const openPolls = polls.filter((poll) => poll.status === 'open'); // Only open polls
+    const players = new Set();
 
-    activePolls.forEach((poll) => {
+    openPolls.forEach((poll) => {
       players.add(poll.player1.name);
       players.add(poll.player2.name);
     });
@@ -149,17 +150,49 @@ export default function AdminPolls() {
     return Array.from(players);
   };
 
+  // Copy player names to clipboard
+  const copyPlayerNamesToClipboard = () => {
+    const playerNames = getUniquePlayers();
+    const playerNamesString = JSON.stringify(playerNames, null, 2); // Pretty-print JSON
+
+    navigator.clipboard
+      .writeText(playerNamesString)
+      .then(() => {
+        toast.success('Copied to clipboard!');
+      })
+      .catch(() => {
+        toast.error('Failed to copy to clipboard.');
+      });
+  };
+
   // Handle batch resolve
   const handleBatchResolve = async () => {
     setLoading(true);
     try {
+      // Parse the JSON input
+      const playerPoints = JSON.parse(playerPointsJson);
+
+      // Resolve only open polls (exclude closed polls)
+      const openPolls = polls.filter((poll) => poll.status === 'open');
+      const resolvedPolls = openPolls.map((poll) => {
+        const player1Points = playerPoints[poll.player1.name] || 0;
+        const player2Points = playerPoints[poll.player2.name] || 0;
+
+        return {
+          id: poll.id,
+          winnerId: player1Points > player2Points ? poll.player1.id : poll.player2.id,
+        };
+      });
+
+      // Update polls in the database
       const response = await fetch('/api/polls/batch-resolve', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(resolvedPolls),
       });
 
       if (response.ok) {
-        toast.success('All polls resolved successfully!');
+        toast.success('All open polls resolved successfully!');
         const updatedPolls = await fetch('/api/polls').then((res) => res.json());
         setPolls(updatedPolls);
       } else {
@@ -168,7 +201,7 @@ export default function AdminPolls() {
       }
     } catch (error) {
       console.error('Error resolving polls:', error);
-      toast.error('An error occurred while resolving polls.');
+      toast.error('Invalid JSON or an error occurred while resolving polls.');
     } finally {
       setLoading(false);
     }
@@ -199,22 +232,38 @@ export default function AdminPolls() {
         <div>
           <h3 className="text-xl font-bold mb-4">Batch Resolve</h3>
           <div className="mb-4">
-            <h4 className="text-lg font-semibold mb-2">Unique Players in Active Polls</h4>
-            <ul className="list-disc list-inside">
-              {getUniquePlayers().map((player, index) => (
-                <li key={index} className="text-gray-700">
-                  {player}
-                </li>
-              ))}
-            </ul>
+            <h4 className="text-lg font-semibold mb-2">Paste Player Points JSON</h4>
+            <textarea
+              value={playerPointsJson}
+              onChange={(e) => setPlayerPointsJson(e.target.value)}
+              placeholder="Paste JSON here"
+              className="w-full p-2 border border-gray-300 rounded"
+              rows={10}
+            />
           </div>
           <button
             onClick={handleBatchResolve}
-            disabled={loading}
+            disabled={loading || !playerPointsJson}
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded disabled:opacity-50"
           >
             {loading ? 'Resolving...' : 'Resolve All Polls'}
           </button>
+        </div>
+      ) : activeTab === 'active-players' ? (
+        <div>
+          <h3 className="text-xl font-bold mb-4">Active Players</h3>
+          <div className="mb-4">
+            <h4 className="text-lg font-semibold mb-2">Players in Open Polls</h4>
+            <pre className="bg-gray-100 p-4 rounded mb-4">
+              <code>{JSON.stringify(getUniquePlayers(), null, 2)}</code>
+            </pre>
+            <button
+              onClick={copyPlayerNamesToClipboard}
+              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
+            >
+              Copy to Clipboard
+            </button>
+          </div>
         </div>
       ) : (
         <PollTable

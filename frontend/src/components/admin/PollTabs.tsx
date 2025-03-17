@@ -48,6 +48,16 @@ export default function PollTabs({ activeTab, setActiveTab }: PollTabsProps) {
       >
         Batch Resolve
       </button>
+      <button
+        onClick={() => setActiveTab('active-players')}
+        className={`px-4 py-2 text-sm font-medium ${
+          activeTab === 'active-players'
+            ? 'border-b-2 border-blue-600 text-blue-600'
+            : 'text-gray-500 hover:text-gray-700'
+        }`}
+      >
+        Active Players
+      </button>
     </div>
   );
 }
