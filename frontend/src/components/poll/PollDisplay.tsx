@@ -78,7 +78,7 @@ export default function PollDisplay({ poll, onVote }) {
   const pollUrl = `${window.location.origin}/poll/${poll.id}`;
 
   return (
-    <div className="p-6 rounded-lg shadow-lg shadow-zinc-300 text-zinc-950 flex flex-col h-[400px] relative border-1 border-stone-200">
+    <div className="p-6 rounded-lg shadow-lg shadow-zinc-300 text-zinc-950 flex flex-col h-[400px] relative border-1 border-stone-200 bg-white">
       {/* Top Section: Player 1 vs. Player 2 */}
       <div className="text-center mb-6">
         <p className="text-xl font-bold">

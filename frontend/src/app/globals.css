@@ -8,3 +8,12 @@
 .Toastify__progress-bar--success {
     background: #38bdf8!important;
 }
+
+@keyframes fillBar {
+    from {
+      width: 0%;
+    }
+    to {
+      width: var(--target-width);
+    }
+  }

@@ -32,9 +32,11 @@ export default function Home() {
         <div className="relative z-10 text-center">
           <h1 className="text-5xl font-bold mb-4">Make Smarter Fantasy Football Decisions</h1>
           <p className="text-xl mb-8">Create and vote on start/sit polls to improve your lineup decisions.</p>
-          <Link href="/polls" className="bg-pink-600 hover:bg-pink-700 text-white px-6 py-3 rounded-lg text-lg">
-            View Polls
-          </Link>
+          <div className="group inline-block">
+            <Link href="/polls" className="bg-gradient-to-r from-emerald-700 via-emerald-600 to-emerald-700 group-hover:from-emerald-800 group-hover:via-emerald-700 group-hover:to-emerald-800 text-white px-6 py-3 rounded-lg text-lg transition-all duration-300">
+              View Polls
+            </Link>
+          </div>
         </div>
       </div>
 
@@ -60,21 +62,21 @@ export default function Home() {
           <h2 className="text-3xl font-bold mb-8 text-center">How It Works</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="text-center">
-              <div className="bg-rose-500 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="bg-gradient-to-r from-emerald-700 via-emerald-600 to-emerald-700 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span className="text-2xl">1</span>
               </div>
               <h3 className="text-xl font-bold mb-2">Create Polls</h3>
               <p>Choose two players and create a poll to get advice from the community.</p>
             </div>
             <div className="text-center">
-              <div className="bg-blue-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="bg-gradient-to-r from-emerald-700 via-emerald-600 to-emerald-700 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span className="text-2xl">2</span>
               </div>
               <h3 className="text-xl font-bold mb-2">Vote on Polls</h3>
               <p>Help others decide who to start by voting on their polls.</p>
             </div>
             <div className="text-center">
-              <div className="bg-blue-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="bg-gradient-to-r from-emerald-700 via-emerald-600 to-emerald-700 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span className="text-2xl">3</span>
               </div>
               <h3 className="text-xl font-bold mb-2">Track Accuracy</h3>

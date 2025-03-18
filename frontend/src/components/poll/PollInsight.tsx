@@ -1,9 +1,15 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 export default function PollInsight({ votes, totalVotes, barColor, percentage }) {
   const [isHovered, setIsHovered] = useState(false);
+  const [animatedWidth, setAnimatedWidth] = useState(0);
+
+  // Animate the bar width when the component mounts or the percentage changes
+  useEffect(() => {
+    setAnimatedWidth(percentage);
+  }, [percentage]);
 
   return (
     <div
@@ -12,10 +18,10 @@ export default function PollInsight({ votes, totalVotes, barColor, percentage })
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* Voting Bar */}
-      <div className="w-full bg-gray-800 h-6 relative">
+      <div className="w-full bg-gray-800 h-6 relative overflow-hidden">
         <div
-          className={`${barColor} h-6`}
-          style={{ width: `${percentage}%` }}
+          className={`${barColor} h-6 transition-all duration-1000 ease-in-out`}
+          style={{ width: `${animatedWidth}%` }}
         ></div>
         <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-sm text-white">
           {percentage.toFixed(1)}%
@@ -29,9 +35,9 @@ export default function PollInsight({ votes, totalVotes, barColor, percentage })
             {votes.map((vote) => (
               <li key={vote.id} className="text-sm text-gray-700">
                 <span>{vote.user.username}</span>
-                <div className='ml-8 flex gap-4'>
-                    <span>{vote.user.accuracyScore.toFixed(2)}%</span>
-                    <span>{vote.user.weightedScore.toFixed(0)}</span>
+                <div className="ml-8 flex gap-4">
+                  <span>{vote.user.accuracyScore.toFixed(2)}%</span>
+                  <span>{vote.user.weightedScore.toFixed(0)}</span>
                 </div>
               </li>
             ))}
